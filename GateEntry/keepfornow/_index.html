@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Number Plate</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+            .add-btn:hover {
+                background-color: #218838;
+            }
+
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+            .remove-btn:hover {
+                background-color: #c82333;
+            }
+
+        #response {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Add Number Plate</h2>
+
+        <input id="plateInput" type="text" placeholder="e.g., ab12 cde" />
+
+        <div>
+            <button class="add-btn" onclick="submitPlate('POST')">Add Plate</button>
+            <button class="remove-btn" onclick="submitPlate('DELETE')">Remove Plate</button>
+        </div>
+
+        <p id="response"></p>
+    </div>
+
+    <script>
+        // ========================
+        // Session Timeout Settings
+        // ========================
+        const timeoutMinutes = 15;
+        const timeoutMs = timeoutMinutes * 60 * 1000;
+        let timeoutHandle;
+
+        function resetSessionTimer() {
+            clearTimeout(timeoutHandle);
+            timeoutHandle = setTimeout(() => {
+                alert("Session expired due to inactivity.");
+                window.location.href = "/login";
+            }, timeoutMs);
+        }
+
+        // Reset on activity
+        ['click', 'keydown', 'mousemove'].forEach(event =>
+            document.addEventListener(event, resetSessionTimer)
+        );
+
+        // Start the initial timer
+        resetSessionTimer();
+
+        // ========================
+        // Plate Submission Logic
+        // ========================
+        async function sha256(text) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hashBuffer))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+
+        async function submitPlate(method) {
+            const inputEl = document.getElementById('plateInput');
+            const input = inputEl.value;
+            const normalised = input.replace(/\s+/g, '').toUpperCase();
+            const responseText = document.getElementById('response');
+
+            if (!normalised) {
+                alert("Please enter a number plate.");
+                return;
+            }
+
+            const hash = await sha256(normalised);
+
+            try {
+                const res = await fetch('/api/plates/access', {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hashedNumberPlate: hash })
+                });
+
+                if (res.ok) {
+                    responseText.textContent = method === 'POST'
+                        ? 'Plate added successfully!'
+                        : 'Plate removed successfully!';
+                    inputEl.value = '';
+                } else {
+                    responseText.textContent = `Error: ${res.status} - ${await res.text()}`;
+                }
+            } catch (error) {
+                responseText.textContent = `Request failed: ${error}`;
+            }
+        }
+    </script>
+</body>
+</html>

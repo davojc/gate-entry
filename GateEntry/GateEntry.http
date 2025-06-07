@@ -1,0 +1,6 @@
+@GateEntry_HostAddress = http://localhost:5085
+
+GET {{GateEntry_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

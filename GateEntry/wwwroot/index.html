@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Plate Manager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="pin-screen">
+    <h1>Admin Access</h1>
+    <p>Please enter the admin PIN to continue.</p>
+    <input type="password" id="pin-input" placeholder="Enter PIN">
+    <button id="pin-submit">Submit</button>
+    <p id="pin-error" class="error-message"></p>
+</div>
+
+<div id="app" style="display: none;">
+    <header>
+        <h1>Number Plate Manager</h1>
+    </header>
+
+    <main>
+        <section id="add-plate-section">
+            <h2>Add New Number Plate</h2>
+            <form id="add-plate-form">
+                <input type="text" id="plate-number-input" placeholder="e.g., AB12 CDE" required>
+                <button type="submit">Add Plate</button>
+            </form>
+            <p id="form-error" class="error-message"></p>
+        </section>
+
+        <section id="plate-list-section">
+            <h2>Managed Plates</h2>
+            <table id="plates-table">
+                <thead>
+                <tr>
+                    <th>Number Plate</th>
+                    <th>Added</th>
+                    <th>Last Seen</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

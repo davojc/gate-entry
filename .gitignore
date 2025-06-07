@@ -52,3 +52,15 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Dev
+appsettings.Development.json
+
+# Data
+plates.json
+
+#Backups
+*Backup.tmp
+
+# Visual Studio local
+.vs
