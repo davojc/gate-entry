@@ -1,7 +1,6 @@
 using GateEntry.Model;
 using GateEntry.Processors;
 using GateEntry.Repository;
-using LiveStreamingServerNet.Utilities.Mediators.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;

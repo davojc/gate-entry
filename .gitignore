@@ -64,3 +64,9 @@ plates.json
 
 # Visual Studio local
 .vs
+
+# Published files
+/publish
+
+# Any Zip File
+*.zip

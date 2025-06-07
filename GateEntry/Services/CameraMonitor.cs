@@ -9,15 +9,15 @@ public class CameraMonitor : BackgroundService
 {
     private readonly Channel<CameraImage> _imageChannel;
     private readonly HttpClient _httpClient = new HttpClient();
-    private readonly int _seconds = 1;
     private readonly string _url;
+    private readonly CameraSettings _cameraSettings;
 
     public CameraMonitor(Channel<CameraImage> imageChannel, IOptions<Settings> settings)
     {
         _imageChannel = imageChannel;
-        var cam = settings.Value.Camera;
+        _cameraSettings = settings.Value.Camera;
 
-        _url = $"{cam.Url}/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=abc&user={cam.User}&password={cam.Pwd}";
+        _url = $"{_cameraSettings.Url}/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=abc&user={_cameraSettings.User}&password={_cameraSettings.Pwd}";
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -34,7 +34,7 @@ public class CameraMonitor : BackgroundService
                 Console.WriteLine(e);
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(_seconds), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(_cameraSettings.Frequency), stoppingToken);
         }
     }
 }
