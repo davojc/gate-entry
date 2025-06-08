@@ -6,6 +6,10 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write  # needed to upload release assets
+  releases: write  # needed to create and manage releases
+
 jobs:
   build-and-release:
     runs-on: windows-latest  # Only run on Windows
@@ -23,11 +27,11 @@ jobs:
       run: dotnet restore ./GateEntry/GateEntry.csproj
 
     - name: Build project
-      run: dotnet build ./GateEntry/GateEntry.csproj --configuration Release --no-restore
+      run: dotnet build ./GateEntry/GateEntry.csproj -c Release -r win-x64 --no-restore
 
     - name: Publish application
       run: |
-        dotnet publish ./GateEntry/GateEntry.csproj --configuration Release --output publish_output
+        dotnet publish ./GateEntry/GateEntry.csproj -c Release -r win-x64 --self-contained true --output publish_output
 
     - name: Archive published output
       shell: pwsh
