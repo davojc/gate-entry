@@ -21,6 +21,7 @@ $githubRepo = "davojc/gate-entry"
 $processName = "GateEntry"
 $installDir = "C:\Program Files\GateEntry"
 $exeName = "GateEntry.exe"
+$zipFileName = "gateentry.zip"
 # ---------------------
 
 # Step 1: Check for Administrator privileges
@@ -36,20 +37,25 @@ Write-Host "Administrator privileges confirmed." -ForegroundColor Green
 try {
     # Step 2: Get the latest release information from GitHub
     Write-Host "Fetching latest release from GitHub repository: $githubRepo" -ForegroundColor Yellow
-    $apiUrl = "https://api.github.com/repos/$githubRepo/releases/latest"
-    $releaseInfo = Invoke-RestMethod -Uri $apiUrl -Method Get
 
-    # Find the .zip asset from the release
-    $zipAsset = $releaseInfo.assets | Where-Object { $_.name -like '*.zip' }
-    if (-not $zipAsset) {
-        throw "No .zip asset found in the latest release. Please check the repository's releases."
+    $repoPath = "https://github.com/davojc/gate-entry/releases/latest/download"
+    $downloadUrl = "$repoPath/$zipFileName"
+
+    function Download-File {
+        param (
+            [string]$url,
+            [string]$destinationPath
+        )
+        Write-Output "Downloading file: $url"
+        Invoke-WebRequest -Uri $url -OutFile $destinationPath
     }
 
-    $downloadUrl = $zipAsset.browser_download_url
-    $zipFileName = $zipAsset.name
-    Write-Host "Found release: $($releaseInfo.tag_name)" -ForegroundColor Green
+    # Step 3: Download and extract the release
+    $tempZipPath = Join-Path $env:TEMP $zipFileName
+    Write-Host "Downloading $zipFileName to $tempZipPath..." -ForegroundColor Yellow
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $tempZipPath
 
-    # Step 3: Stop the running process if it exists
+    # Step 4: Stop the running process if it exists
     Write-Host "Checking for running process: $processName" -ForegroundColor Yellow
     $runningProcess = Get-Process -Name $processName -ErrorAction SilentlyContinue
     if ($runningProcess) {
@@ -70,11 +76,6 @@ try {
         New-Item -Path $installDir -ItemType Directory -Force | Out-Null
     }
     Write-Host "Directory is ready." -ForegroundColor Green
-
-    # Step 5: Download and extract the release
-    $tempZipPath = Join-Path $env:TEMP $zipFileName
-    Write-Host "Downloading $zipFileName to $tempZipPath..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri $downloadUrl -OutFile $tempZipPath
 
     Write-Host "Download complete. Extracting archive to $installDir..."
     Expand-Archive -Path $tempZipPath -DestinationPath $installDir -Force

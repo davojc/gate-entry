@@ -28,15 +28,14 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Publish
-      run: dotnet publish .\GateEntry\GateEntry.csproj --configuration Release --runtime win-x64 --self-contained true --output ./publish
-      # Replace "YourProjectName.csproj" with the actual path to your project file.
+      run: dotnet publish .\GateEntry\GateEntry.csproj --configuration Release --runtime win-x64 --output ./publish
+      #run: dotnet publish .\GateEntry\GateEntry.csproj --configuration Release --runtime win-x64 --self-contained true --output ./publish
 
     - name: Zip the release
       run: |
         $releaseName = "GateEntry-${{ github.ref_name }}"
         Compress-Archive -Path ./publish\* -DestinationPath ./gateentry.zip
         echo "RELEASE_NAME=$releaseName" >> $env:GITHUB_ENV
-      # Replace "YourProjectName" with your desired release name prefix.
 
     - name: Create GitHub Release
       id: create_release
