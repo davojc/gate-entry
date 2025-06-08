@@ -23,7 +23,7 @@ jobs:
         dotnet-version: '9.0.x'  # Use the latest .NET 9 SDK
 
     - name: Restore dependencies
-      run: dotnet restore ./GateEntry/GateEntry.csproj
+      run: dotnet restore ./GateEntry/GateEntry.csproj --runtime win-x64
 
     - name: Build project
       run: dotnet build ./GateEntry/GateEntry.csproj -c Release -r win-x64 --no-restore
