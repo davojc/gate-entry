@@ -34,13 +34,37 @@ jobs:
     - name: Zip the release
       run: |
         $releaseName = "GateEntry-${{ github.ref_name }}"
-        Compress-Archive -Path ./publish\* -DestinationPath ./$gateentry.zip
+        Compress-Archive -Path ./publish\* -DestinationPath ./gateentry.zip
         echo "RELEASE_NAME=$releaseName" >> $env:GITHUB_ENV
       # Replace "YourProjectName" with your desired release name prefix.
 
     - name: Create GitHub Release
       id: create_release
-      uses: ncipollo/release-action@v1
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        artifacts: "${{ env.RELEASE_NAME }}.zip,scripts/update.ps1"
-        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: ${{ github.ref }}         # Use the pushed tag as the release tag
+        release_name: Release ${{ github.ref }}  # Set the release name based on the tag
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Zip
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./gateentry.zip               # The path to the published output
+        asset_name: gateentry.zip    # Rename the uploaded file
+        asset_content_type: application/octet-stream
+
+    - name: Upload Deploy Powershell Script
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./scripts/deploy.ps1               # The path to the published output
+        asset_name: deploy.ps1     # Rename the uploaded file
+        asset_content_type: text/x-powershell
