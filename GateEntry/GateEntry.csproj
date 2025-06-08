@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
+    <SelfContained>false</SelfContained>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -16,9 +17,5 @@
     <Folder Include="Channels\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
-
-  <Target Name="Publish">
-    <Exec Command="dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true --o ./publish" />
-  </Target>
 
 </Project>

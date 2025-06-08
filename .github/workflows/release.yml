@@ -28,8 +28,22 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Publish
-      run: dotnet publish .\GateEntry\GateEntry.csproj --configuration Release --runtime win-x64 --output ./publish
-      #run: dotnet publish .\GateEntry\GateEntry.csproj --configuration Release --runtime win-x64 --self-contained true --output ./publish
+      run: dotnet publish .\GateEntry\GateEntry.csproj --configuration Release --runtime win-x64 --self-contained false --output ./publish
+
+    # Remove unwanted runtimes
+    - name: Prune Unwanted Runtimes from Publish Folder
+      run: |
+        $runtimesDir = "./publish/runtimes"
+        if (Test-Path $runtimesDir) {
+          Write-Host "Runtimes folder found. Pruning..."
+          Get-ChildItem -Path $runtimesDir -Directory | Where-Object { $_.Name -ne 'win-x64' } | ForEach-Object {
+            Write-Host "Deleting unwanted runtime folder: $($_.FullName)"
+            Remove-Item -Path $_.FullName -Recurse -Force
+          }
+          Write-Host "Pruning complete."
+        } else {
+          Write-Host "No runtimes folder found, skipping pruning."
+        }
 
     - name: Zip the release
       run: |
