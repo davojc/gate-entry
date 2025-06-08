@@ -1,59 +1,44 @@
-name: Publish .NET App and Release
+name: .NET Release
 
 on:
   push:
-    # Trigger on version tags like v1.0.0
     tags:
       - 'v*'
 
-permissions:
-  contents: write  # needed to upload release assets
-
 jobs:
   build-and-release:
-    runs-on: windows-latest  # Only run on Windows
+    name: Build and Release
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Setup .NET SDK (Latest)
-      uses: actions/setup-dotnet@v3
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x'  # Use the latest .NET 9 SDK
+        dotnet-version: '9.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore ./GateEntry/GateEntry.csproj --runtime win-x64
+      run: dotnet restore
 
-    - name: Build project
-      run: dotnet build ./GateEntry/GateEntry.csproj -c Release -r win-x64 --no-restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
 
-    - name: Publish application
+    - name: Publish
+      run: dotnet publish .\GateEntry\GateEntry.csproj --configuration Release --runtime win-x64 --self-contained true --output ./publish
+      # Replace "YourProjectName.csproj" with the actual path to your project file.
+
+    - name: Zip the release
       run: |
-        dotnet publish ./GateEntry/GateEntry.csproj -c Release -r win-x64 --self-contained true --output publish_output
-
-    - name: Archive published output
-      shell: pwsh
-      run: |
-        Compress-Archive -Path publish_output\* -DestinationPath app.zip -Force
+        $releaseName = "YourProjectName-${{ github.ref_name }}"
+        Compress-Archive -Path ./publish\* -DestinationPath ./$releaseName.zip
+        echo "RELEASE_NAME=$releaseName" >> $env:GITHUB_ENV
+      # Replace "YourProjectName" with your desired release name prefix.
 
     - name: Create GitHub Release
       id: create_release
-      uses: actions/create-release@v1
+      uses: ncipollo/release-action@v1
       with:
-        tag_name: ${{ github.ref_name }}
-        release_name: Release ${{ github.ref_name }}
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Upload release asset
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./app.zip
-        asset_name: app.zip
-        asset_content_type: application/zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: "${{ env.RELEASE_NAME }}.zip"
+        token: ${{ secrets.GITHUB_TOKEN }}
