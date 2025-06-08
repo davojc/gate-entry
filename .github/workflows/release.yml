@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: write  # needed to upload release assets
-  releases: write  # needed to create and manage releases
 
 jobs:
   build-and-release:
