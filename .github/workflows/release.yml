@@ -33,8 +33,8 @@ jobs:
 
     - name: Zip the release
       run: |
-        $releaseName = "YourProjectName-${{ github.ref_name }}"
-        Compress-Archive -Path ./publish\* -DestinationPath ./$releaseName.zip
+        $releaseName = "GateEntry-${{ github.ref_name }}"
+        Compress-Archive -Path ./publish\* -DestinationPath ./$gateentry.zip
         echo "RELEASE_NAME=$releaseName" >> $env:GITHUB_ENV
       # Replace "YourProjectName" with your desired release name prefix.
 
