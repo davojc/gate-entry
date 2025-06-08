@@ -42,5 +42,5 @@ jobs:
       id: create_release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "${{ env.RELEASE_NAME }}.zip"
+        artifacts: "${{ env.RELEASE_NAME }}.zip,scripts/update.ps1"
         token: ${{ secrets.GITHUB_TOKEN }}
